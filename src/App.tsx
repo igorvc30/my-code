@@ -1,34 +1,52 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useEffect, useState } from 'react'
+
 import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
+type Task = {
+  title: string;
+  completed: boolean;
+}
 
+function App() {
+  const [tasks, setTasks ] = useState([]);
+  const [input, setInput] = useState("");
+  const handleInput = () => {
+    const data = {title: input};
+
+  }
+
+const onInputChange = (event) => {
+ const text = event.target.value;
+ setInput(text);
+}
+
+const getTasks = async ()=> {
+  try {
+    const response = await fetch("http://localhost:3000/tasks");
+  const data = await response.json();
+  setTasks(data);
+  } catch (error) {
+    console.log("error ", error)
+  }
+  
+}
+
+useEffect(()=> {
+  getTasks().then();
+},[getTasks])
+
+const renderListItem = (item: Task)=>(<p key={item.title} style={item.completed?{textDecoration:"line-through" }:{}}>{item.title}</p>)
+  
   return (
-    <>
+   <div>
+      <h1>Todo list</h1>
       <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        <input value={input} onChange={onInputChange}/>
+        <button onClick={handleInput}>Add</button>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+      <pre>{JSON.stringify(tasks, null, 2)}</pre>
+      {tasks.map(renderListItem)}
+   </div>
   )
 }
 
